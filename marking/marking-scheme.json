@@ -1,1 +1,739 @@
-{}
+{
+  "totalMark": 33,
+  "wsosSections": {
+    "1": "Work organization and self-management",
+    "2": "Communication and interpersonal skills",
+    "3": "Design Implementation",
+    "4": "Front-End Development"
+  },
+  "subCriterions": [
+    {
+      "name": "Authentication and session",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Successful sign-in stores session; session survives reload",
+          "maxMark": 1,
+          "wsosSection": 4,
+          "extraDescription": "Test: login as passenger1@email.com / passenger123; enter the app with Bearer token stored. Reload; passenger remains authenticated.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Invalid or inactive login shows a clear error",
+          "maxMark": 0.5,
+          "wsosSection": 2,
+          "extraDescription": "Test: wrong password and passenger31@email.com / passenger123 return 401 and show a clear authentication error without sensitive details.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Sign-out clears the session and opens sign-in",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: sign out calls logout when possible, clears local session, and navigates to `/login`. Local session is cleared even if the remote token is already invalid.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "401 on protected request clears session and requires re-authentication",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: invalidate/expire the stored token, then trigger a protected request; session is cleared and sign-in is required again.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registration and profile",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Registration creates an account and opens My claims",
+          "maxMark": 1,
+          "wsosSection": 4,
+          "extraDescription": "Test: register with unique valid data (password ≥ 8 chars); session is stored and `/claims` opens.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Registration shows client and API validation errors",
+          "maxMark": 0.5,
+          "wsosSection": 2,
+          "extraDescription": "Test: incomplete/invalid form blocked client-side with field messages; API 422 (e.g. duplicate email) shows field-specific messages.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Profile loads and displays current passenger data",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: `/profile` loads via GET /passenger/profile and shows current name, email, phone, and address fields. Existing password is never displayed.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Profile update confirms success and omits empty password",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: update a profile field; show returned data and a visible success confirmation. Empty/unchanged password is not sent. Optional new password ≥ 8 characters is accepted.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Profile shows API validation errors including non-unique email",
+          "maxMark": 0.25,
+          "wsosSection": 2,
+          "extraDescription": "Test: trigger a profile PUT 422 (e.g. email already used); field-specific messages appear next to the relevant controls.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "New claim wizard and quality score",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Wizard shows three steps with current and completed step indication",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: `/claims/new` presents Where/when → Item details → Review. Current step and completed steps are clearly indicated.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Terminal selector shows loading while GET /terminals runs",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: opening `/claims/new` shows a clear loading state while terminals are fetched; the selector is not ready as a successful list yet.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Failed terminals load shows error and Retry",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: block or fail GET /terminals; an error is shown with a Retry action that requests terminals again.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Cannot continue without a terminal from a successful response",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: passenger cannot advance/submit without selecting a terminal loaded from a successful GET /terminals response.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Where/when step validates lost_on before advance",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: cannot leave Where/when without a valid lost_on. A future date is rejected and does not allow advance. (Terminal selection is marked separately.)",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Item details step validates required category and description",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: cannot leave Item details without required category (exact allowed values) and description. Optional brand, colour, and flight number may be left empty.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Review summary and safe return to previous steps",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: Review shows a complete summary of entered values. Returning to earlier steps keeps data. Browser back/forward does not accidentally submit or wipe entered values.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Claim quality score recalculates live from 0 to 100",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: score updates immediately when form values change using the documented point rules and is clamped to 0–100. Calculated entirely in the browser — no API call and not sent with the claim.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Quality score labels match documented score bands",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: 0–39 Needs more detail; 40–69 Basic; 70–89 Detailed; 90–100 Excellent.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Worked example claim quality score equals 90",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: terminal + category + brand + colour, no flight number, 85-character description with ≥12 distinct words, and today's lost_on scores exactly 90.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Review step shows quality score breakdown and improvement hints",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: Review step shows a points breakdown and indicates which optional details could still increase the score.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Quality score is advisory and does not block valid submission",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: with a low quality score but API-required fields valid, submit still succeeds.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Unfinished claim draft recoverable after reload",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: leave an unfinished claim draft and reload (or reopen the browser); offer Continue or Discard and restore values when continuing.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Draft is not retrieved after submit, discard, or passenger change",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: after successful submit or Discard, no previous draft is offered. Signing in as a different passenger does not retrieve another passenger's draft.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Quality score matches restored draft form values",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: when a draft is continued or discarded, the claim quality score again matches the current form values.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Valid claim creation returns confirmation with reference code",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: valid submit via POST /passenger/claims creates the claim and shows confirmation including CL-XXXXXXXX.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Duplicate claim submit is prevented while a request is in progress",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: after clicking submit, further submit actions are blocked or ignored until the request finishes (no duplicate POSTs).",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Confirmation modal shows claim summary with copyable reference",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: after create, modal shows reference code (CL-XXXXXXXX, easy to copy), submitted status, category, terminal, and date lost.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Create new claim resets the wizard to the first step",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: choosing Create new claim closes the modal, resets the multi-step form to Where/when, and leaves the passenger ready to file another claim.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Show my claims and dismiss navigate to My claims",
+          "maxMark": 0.25,
+          "wsosSection": 3,
+          "extraDescription": "Test: Show my claims navigates to `/claims`. Dismiss via Escape, close button, or backdrop does the same — not leave the finished form without confirmation.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "My claims workspace",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Claims list shows required fields and opens claim detail",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: list shows reference, category, terminal, lost date, and status; each row opens its claim detail page.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Claims list supports status filtering via the API",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: changing the status filter requests GET /passenger/claims with the matching status query and updates the list.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Pagination uses API links or meta",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: page navigation uses the API `links` or `meta` pagination; does not assume a single page of results.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Claims URL query stores selected status and page",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: after selecting a status and page, the URL contains both (e.g. `?status=submitted&page=2`).",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Reload and browser history restore the claims workspace view",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: reloading the page and using browser back/forward restore the same status filter and page from the URL.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Changing status filter resets pagination to page 1",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: with page > 1 selected, change the status filter; the list returns to page 1 and the URL page parameter updates accordingly.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Delayed rejected filter cannot overwrite a newer selection",
+          "maxMark": 1.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: select rejected (~2s API delay), quickly switch to another status; after both complete, list and URL match the last status, not rejected.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Empty claims state is clear and distinct",
+          "maxMark": 0.25,
+          "wsosSection": 2,
+          "extraDescription": "Test: when the passenger has no matching claims, show an empty message that is not a loading or error state.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Page changes keep prior results with non-blocking loading",
+          "maxMark": 0.25,
+          "wsosSection": 2,
+          "extraDescription": "Test: moving between claim pages keeps prior results visible with a non-blocking loading indication — no incorrect empty flash.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Claim detail, withdrawal, and live refresh",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Claim detail presents required passenger claim fields",
+          "maxMark": 1,
+          "wsosSection": 4,
+          "extraDescription": "Test: detail shows reference, terminal, category, brand/colour when present, description, lost date, flight when present, status, created/updated, resolution and matched-item info when available.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Authenticated claim detail shows clear not-found for unavailable claims",
+          "maxMark": 0.25,
+          "wsosSection": 2,
+          "extraDescription": "Test: open `/claims/:id` with an unknown or inaccessible id; show a clear not-found / unavailable message (API 404), not a blank or uncaught error page.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Passenger journey represents all statuses correctly",
+          "maxMark": 1,
+          "wsosSection": 3,
+          "extraDescription": "Test: journey covers submitted, under-review, matched, resolved, rejected, withdrawn. Rejected/withdrawn are alternative endings, not successful completion.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Withdraw action only for submitted or under-review claims",
+          "maxMark": 0.5,
+          "wsosSection": 4,
+          "extraDescription": "Test: Withdraw is shown only when status is `submitted` or `under-review`. It is hidden for matched, resolved, rejected, and withdrawn.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Withdraw asks for confirmation before sending the request",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: choosing Withdraw prompts for confirmation; cancelling does not call the withdraw endpoint.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Successful withdraw updates claim to withdrawn and hides the action",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: confirming withdraw updates the displayed claim to `withdrawn` and hides the Withdraw action.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Claim detail polls about every 15 seconds",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: while an open non-terminal claim detail is visible, it refreshes from the API about every 15 seconds.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Polling does not start overlapping refresh requests",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: a new automatic refresh does not start while the previous refresh request is still in progress.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Polling pauses when hidden and refreshes when visible again",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: hide the tab/page (document hidden); automatic polling pauses. Make it visible again; a refresh runs promptly and polling resumes.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Polling stops for resolved, rejected, or withdrawn",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: when status becomes resolved, rejected, or withdrawn, automatic polling stops.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Timers and pending claim refreshes are cleaned up on leave or sign-out",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: leave claim detail (or sign out) while polling; no further claim GET from that page applies afterwards. Switching to another claim/route must not apply the previous page's response.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Status changes update journey with accessible announcement",
+          "maxMark": 0.5,
+          "wsosSection": 3,
+          "extraDescription": "Test: when status changes via refresh, journey and claim data update without full page reload and the change is announced visibly and via an accessible live region.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Manual refresh control works on claim detail",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: a manual refresh control refreshes the open claim using the same loading handling as automatic refresh.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Temporary refresh failure keeps last claim with a warning",
+          "maxMark": 0.5,
+          "wsosSection": 2,
+          "extraDescription": "Test: after a successful load, force offline/block claim GET and refresh; last claim stays visible with a non-destructive warning, not a blank/full error page. Manual refresh may retry.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public claim tracking",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Public track works signed-out and opens result URL",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: while signed out, `/track` accepts a valid CL-XXXXXXXX code and navigates to `/track/:referenceCode` showing the public track result.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Tracking result URL can be reloaded",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: reloading `/track/:referenceCode` repeats the public lookup and shows the same tracking result.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Reference code input is uppercased and trimmed",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: entering a code with surrounding spaces and lowercase letters is normalized (trim + uppercase) before the request; internal characters are not changed.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Public track uses only the public endpoint and shows no personal data",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: tracking uses GET /claims/track/{referenceCode} only (no authenticated passenger endpoints) and does not display passenger personal data.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Unknown code shows not-found and allows another search",
+          "maxMark": 0.5,
+          "wsosSection": 2,
+          "extraDescription": "Test: invalid/unknown code produces a clear claim-not-found result and allows another search.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Public result uses the same live journey and refresh behaviour",
+          "maxMark": 0.25,
+          "wsosSection": 4,
+          "extraDescription": "Test: tracking result uses the same journey presentation and 15-second refresh rules as authenticated detail, via the public endpoint only.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "SPA structure and routing",
+      "aspects": [
+        {
+          "type": "measurement",
+          "description": "Required path-based History-mode routes open the correct pages",
+          "maxMark": 0.75,
+          "wsosSection": 1,
+          "extraDescription": "Test: `/login`, `/register`, `/track`, `/track/:referenceCode`, `/claims`, `/claims/new`, `/claims/:id`, and `/profile` open the correct pages using framework History mode. Navigation uses path URLs (e.g. `/claims`), not hash routing (`#/claims`).",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Default `/` redirects by authentication state",
+          "maxMark": 0.25,
+          "wsosSection": 1,
+          "extraDescription": "Test: `/` redirects signed-out users to sign-in and signed-in users to My claims.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Authenticated routes are guarded and restore after sign-in",
+          "maxMark": 1,
+          "wsosSection": 1,
+          "extraDescription": "Test: open `/claims`, `/claims/new`, `/claims/:id`, or `/profile` while signed out → navigate to sign-in; after successful login, return to the originally requested URL. Reload keeps the same route content.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "No staff or admin UI is exposed",
+          "maxMark": 0.5,
+          "wsosSection": 1,
+          "extraDescription": "Test: passenger UI has no staff/admin desk, items, matching, dashboard, or elevated-privilege navigation.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "judgement",
+          "description": "SPA code organization and maintainability",
+          "maxMark": 1.5,
+          "wsosSection": 1,
+          "judgementScoreDescription": [
+            "Unstructured code; hard to follow routes, API calls, or components",
+            "Basic page split but inconsistent naming or duplicated API/auth logic",
+            "Clear structure for routes, pages, and API usage with reasonable separation of concerns",
+            "Well-organized SPA with reusable auth/API patterns and maintainable naming"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Design, UX, and accessibility",
+      "aspects": [
+        {
+          "type": "judgement",
+          "description": "Passenger-facing visual design and layout quality",
+          "maxMark": 1.5,
+          "wsosSection": 3,
+          "judgementScoreDescription": [
+            "Looks unfinished or like an admin tool; weak hierarchy and inconsistent layout",
+            "Basic passenger layout works but visual hierarchy and consistency are limited",
+            "Clear passenger-service design with good hierarchy, spacing, and consistent components",
+            "Polished airport passenger portal: strong hierarchy, consistent UI, and readable status presentation"
+          ]
+        },
+        {
+          "type": "judgement",
+          "description": "Loading, empty, success, and error states are clearly distinct",
+          "maxMark": 1.5,
+          "wsosSection": 3,
+          "judgementScoreDescription": [
+            "States missing or confusing across pages",
+            "Some states exist but are inconsistent or easy to misread",
+            "Four states are generally clear and consistent on main flows",
+            "All four states are unmistakable portal-wide with helpful messaging"
+          ]
+        },
+        {
+          "type": "judgement",
+          "description": "Accessibility of forms and interactive controls",
+          "maxMark": 1.5,
+          "wsosSection": 3,
+          "judgementScoreDescription": [
+            "Poor keyboard use, missing labels, or no visible focus",
+            "Basic labels exist but keyboard/focus/error association is incomplete",
+            "Forms are keyboard-usable with labels, focus states, and associated errors on main flows",
+            "Consistent keyboard access, clear focus, labeled controls, and accessible status updates"
+          ]
+        },
+        {
+          "type": "measurement",
+          "description": "Responsive layout without horizontal scrolling",
+          "maxMark": 0.5,
+          "wsosSection": 3,
+          "extraDescription": "Test: at ~360px and desktop widths, main pages remain usable without horizontal scrolling.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        },
+        {
+          "type": "measurement",
+          "description": "Status is not communicated by colour alone",
+          "maxMark": 0.5,
+          "wsosSection": 3,
+          "extraDescription": "Test: claim statuses use text/labels (or equivalent non-colour cues), not colour alone.",
+          "calculation": {
+            "type": "pass-or-fail"
+          }
+        }
+      ]
+    }
+  ]
+}
