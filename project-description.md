@@ -19,13 +19,25 @@ You will be given a working solution of the Module A ReClaim API. You must use t
 Create the application as a **Single Page Application (SPA)** using a modern JavaScript framework. Additional libraries may be used. Routing must be managed by the framework, and reloading a route must restore the same page, except for unsaved form input and temporary messages.
 
 Your API base URL:
-`https://module-a-solution-cnbe2026.foredu.cn/api`
+`http://localhost:5000/api`
 
-All API paths in this document are relative to this base URL.
+All API paths in this document are relative to this base URL. See [Setup](#setup) for how to start the API locally.
 
 The OpenAPI documentation of the backend API is available in `assets/api-docs/` — open `assets/api-docs/index.html` in a browser.
 
 An extra helper endpoint is available: **`POST /reset-db`**. You may call it to reset the database to the canonical seed data when needed during development or testing. It is not part of the passenger portal UI you must build.
+
+### Setup
+
+This task is intended to be run locally rather than against the live competition infrastructure used during the actual competition. A Docker Compose file is provided at `assets/docker-compose.yml` to set up the required environment.
+
+Running `docker compose up -d` from the `assets/` directory starts three services:
+
+- **`api`**: the provided ReClaim REST API (the Module A solution), exposed at `http://localhost:5000`, making the API base URL `http://localhost:5000/api`.
+- **`db`**: a MySQL server. On first startup it automatically imports the database dump from `assets/database/reclaim-db.sql` into the `reclaim_api` database used by the API.
+- **`pma`**: phpMyAdmin, a web-based MySQL administration tool. It is exposed at `http://localhost:8080` and can be used to inspect the database.
+
+The database is reachable at `localhost:3306` (user `root`, password `toor`). You must not modify the backend or its database; the passenger portal you build is not part of this Compose file.
 
 Only the following API operations are in scope:
 

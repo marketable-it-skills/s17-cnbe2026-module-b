@@ -16,10 +16,8 @@ info:
     paginated lists add `links` and `meta` (15 items per page). Response status codes
     are exact — framework defaults that differ must be overridden.
 servers:
-  - url: https://DOMAIN/api
-    description: Competition environment (replace DOMAIN with your assigned base URL)
-  - url: http://localhost:8000/api
-    description: Local development
+  - url: http://localhost:5000/api
+    description: Local environment started with assets/docker-compose.yml
 tags:
   - name: Auth
     description: Staff authentication
